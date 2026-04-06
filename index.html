@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>社区活动地图管理系统</title>
+    <title>全国社区活动地图系统</title>
     <style>
         * {
             margin: 0;
@@ -38,6 +38,7 @@
         .nav-right {
             display: flex;
             gap: 15px;
+            align-items: center;
         }
         .nav-btn {
             background: none;
@@ -53,22 +54,24 @@
         /* 页面容器 */
         .page-container {
             width: 100vw;
-            height: 100vh;
+            min-height: 100vh;
             position: relative;
             padding-top: 50px;
         }
 
-        /* 全国地图首页 */
+        /* ======================
+           1. 全国地图首页（需求核心）
+           ====================== */
         #china-map-page {
             width: 100%;
-            height: 100%;
+            min-height: 100vh;
             background: url("https://picsum.photos/id/1036/1920/1080") center/cover no-repeat;
             position: relative;
             display: block;
         }
         .map-overlay {
             width: 100%;
-            height: 100%;
+            min-height: 100vh;
             background-color: rgba(0,0,0,0.3);
             position: absolute;
             top: 0;
@@ -84,33 +87,51 @@
             z-index: 2;
             cursor: pointer;
         }
+        /* 省份标注（需求：省份后写活动名） */
+        .province-tag {
+            position: absolute;
+            color: white;
+            font-size: 14px;
+            background: rgba(0,0,0,0.6);
+            padding: 4px 8px;
+            border-radius: 4px;
+            z-index: 3;
+            cursor: pointer;
+        }
+        .province-tag:hover {
+            background: rgba(33, 150, 243, 0.8);
+        }
 
-        /* 省份页 */
-        .province-page {
+        /* ======================
+           2. 省份地图页（需求：省地图+省风貌背景）
+           ====================== */
+        .province-map-page {
             width: 100%;
-            height: 100%;
+            min-height: 100vh;
             position: absolute;
             top: 50px;
             left: 0;
             display: none;
             z-index: 5;
+            background: center/cover no-repeat;
         }
-        .province-bg {
+        .province-map-overlay {
             width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 1;
-        }
-        .province-overlay {
-            width: 100%;
-            height: 100%;
+            min-height: 100vh;
             background-color: rgba(0,0,0,0.4);
             position: absolute;
             top: 0;
             left: 0;
-            z-index: 2;
+        }
+        .province-map {
+            width: 80%;
+            max-width: 1000px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3;
+            cursor: pointer;
         }
         .back-btn {
             position: absolute;
@@ -124,48 +145,31 @@
             cursor: pointer;
             font-size: 14px;
         }
-        .province-map {
-            width: 80%;
-            max-width: 1000px;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 3;
-            cursor: pointer;
-        }
 
-        /* 城市活动列表页 */
+        /* ======================
+           3. 城市活动列表页（需求：城市背景+活动推荐）
+           ====================== */
         .city-page {
             width: 100%;
-            height: 100%;
+            min-height: 100vh;
             position: absolute;
             top: 50px;
             left: 0;
             display: none;
             z-index: 6;
-            background: #f5f5f5;
-        }
-        .city-bg {
-            width: 100%;
-            height: 300px;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 1;
+            background: center/cover no-repeat;
         }
         .city-overlay {
             width: 100%;
-            height: 300px;
+            min-height: 100vh;
             background-color: rgba(0,0,0,0.5);
             position: absolute;
             top: 0;
             left: 0;
-            z-index: 2;
         }
         .city-title {
             position: absolute;
-            top: 150px;
+            top: 30px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 3;
@@ -175,7 +179,7 @@
         }
         .activity-list {
             position: absolute;
-            top: 320px;
+            top: 100px;
             left: 50%;
             transform: translateX(-50%);
             width: 90%;
@@ -228,7 +232,6 @@
             background: #2196F3;
             border-radius: 3px;
         }
-        /* 管理员删除按钮 */
         .admin-del-btn {
             position: absolute;
             top: 10px;
@@ -244,22 +247,27 @@
             display: none;
         }
 
-        /* 活动详情页 */
+        /* ======================
+           4. 活动详情页
+           ====================== */
         .detail-page {
             width: 100%;
-            height: 100%;
+            min-height: 100vh;
             position: absolute;
             top: 50px;
             left: 0;
             display: none;
             z-index: 7;
-            background: white;
+            background: #f5f5f5;
         }
         .detail-content {
             width: 90%;
             max-width: 1000px;
             margin: 0 auto;
             padding: 40px 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         .detail-title {
             font-size: 28px;
@@ -297,10 +305,12 @@
             cursor: pointer;
         }
 
-        /* 我参加的活动 */
+        /* ======================
+           5. 我的活动页
+           ====================== */
         #my-joined-page {
             width: 100%;
-            height: 100%;
+            min-height: 100vh;
             position: absolute;
             top: 50px;
             left: 0;
@@ -357,11 +367,11 @@
         }
 
         /* ======================
-           管理员后台页面（新加）
+           6. 管理员后台页
            ====================== */
         #admin-page {
             width: 100%;
-            height: 100%;
+            min-height: 100vh;
             position: absolute;
             top: 50px;
             left: 0;
@@ -452,7 +462,9 @@
             cursor: pointer;
         }
 
-        /* 登录弹窗 */
+        /* ======================
+           登录弹窗
+           ====================== */
         .login-modal {
             position: fixed;
             top: 0;
@@ -519,71 +531,80 @@
 </div>
 
 <div class="page-container">
-    <!-- 1. 全国地图 -->
+    <!-- ======================
+         1. 全国地图首页（需求核心）
+         ====================== -->
     <div id="china-map-page">
         <div class="map-overlay"></div>
         <img src="https://p3-flow-image-sign.byteimg.com/tos-cn-i-a9r32edvhr/3111191918994331138.png~tplv-a9r32edvhr-image.image" 
              alt="中国地图" class="china-map" id="china-map">
+        <!-- 省份标注（需求：省份后写活动名） -->
+        <div class="province-tag" style="top: 30%; left: 40%;" onclick="goToProvince('beijing')">北京 · 社区文化节</div>
+        <div class="province-tag" style="top: 35%; left: 55%;" onclick="goToProvince('heilongjiang')">黑龙江 · 冰雪嘉年华</div>
     </div>
 
-    <!-- 2. 省份地图 -->
-    <div class="province-page" id="beijing-page">
-        <div class="province-bg" style="background:url(https://picsum.photos/id/1016/1920/1080) center/cover no-repeat;"></div>
-        <div class="province-overlay"></div>
-        <button class="back-btn" onclick="backToChina()">← 返回地图</button>
+    <!-- ======================
+         2. 省份地图页（需求：省地图+省风貌背景）
+         ====================== -->
+    <div class="province-map-page" id="beijing-province-page" style="background-image: url('https://picsum.photos/id/1016/1920/1080')">
+        <div class="province-map-overlay"></div>
+        <button class="back-btn" onclick="backToChina()">← 返回全国地图</button>
         <img src="https://p3-flow-image-sign.byteimg.com/tos-cn-i-a9r32edvhr/3111192031111381138.png~tplv-a9r32edvhr-image.image" 
-             class="province-map" id="beijing-map">
+             alt="北京地图" class="province-map" id="beijing-province-map">
     </div>
 
-    <div class="province-page" id="heilongjiang-page">
-        <div class="province-bg" style="background:url(https://picsum.photos/id/1039/1920/1080) center/cover no-repeat;"></div>
-        <div class="province-overlay"></div>
-        <button class="back-btn" onclick="backToChina()">← 返回地图</button>
+    <div class="province-map-page" id="heilongjiang-province-page" style="background-image: url('https://picsum.photos/id/1039/1920/1080')">
+        <div class="province-map-overlay"></div>
+        <button class="back-btn" onclick="backToChina()">← 返回全国地图</button>
         <img src="https://p3-flow-image-sign.byteimg.com/tos-cn-i-a9r32edvhr/3111192143228381138.png~tplv-a9r32edvhr-image.image" 
-             class="province-map" id="heilongjiang-map">
+             alt="黑龙江地图" class="province-map" id="heilongjiang-province-map">
     </div>
 
-    <!-- 3. 城市活动页 -->
-    <div class="city-page" id="beijing-city-page">
-        <div class="city-bg" style="background:url(https://picsum.photos/id/1018/1920/300) center/cover no-repeat;"></div>
+    <!-- ======================
+         3. 城市活动列表页（需求：城市背景+活动推荐）
+         ====================== -->
+    <div class="city-page" id="beijing-city-page" style="background-image: url('https://picsum.photos/id/1018/1920/1080')">
         <div class="city-overlay"></div>
-        <button class="back-btn" onclick="backToProvince('beijing-page')">← 返回北京地图</button>
+        <button class="back-btn" onclick="backToProvince('beijing')">← 返回北京地图</button>
         <h1 class="city-title">北京市社区活动</h1>
         <div class="activity-list" id="beijing-activity-list"></div>
     </div>
 
-    <div class="city-page" id="harbin-city-page">
-        <div class="city-bg" style="background:url(https://picsum.photos/id/1040/1920/300) center/cover no-repeat;"></div>
+    <div class="city-page" id="harbin-city-page" style="background-image: url('https://picsum.photos/id/1040/1920/1080')">
         <div class="city-overlay"></div>
-        <button class="back-btn" onclick="backToProvince('heilongjiang-page')">← 返回黑龙江地图</button>
+        <button class="back-btn" onclick="backToProvince('heilongjiang')">← 返回黑龙江地图</button>
         <h1 class="city-title">哈尔滨市社区活动</h1>
         <div class="activity-list" id="harbin-activity-list"></div>
     </div>
 
-    <!-- 4. 活动详情 -->
+    <!-- ======================
+         4. 活动详情页
+         ====================== -->
     <div class="detail-page" id="detail-page">
-        <button class="back-btn" onclick="backToCity()">← 返回列表</button>
+        <button class="back-btn" onclick="backToCity()">← 返回活动列表</button>
         <div class="detail-content">
             <h1 class="detail-title" id="detail-title"></h1>
             <div class="detail-info">
-                <p>地点：<span id="detail-location"></span></p>
-                <p>计划人数：<span id="detail-plan"></span></p>
-                <p>已报名：<span id="detail-joined"></span></p>
-                <p>时间：2025年X月X日 9:00-17:00</p>
+                <p>活动地点：<span id="detail-location"></span></p>
+                <p>计划报名人数：<span id="detail-plan"></span>人</p>
+                <p>已报名人数：<span id="detail-joined"></span>人</p>
+                <p>活动时间：2025年X月X日 9:00-17:00</p>
             </div>
             <button class="sign-btn" id="sign-btn" onclick="signUp()">立即报名</button>
             <button class="cancel-btn" onclick="cancelSign()" style="display:none" id="cancel-btn">取消报名</button>
         </div>
     </div>
 
-    <!-- 5. 我的活动 -->
+    <!-- ======================
+         5. 我的活动页
+         ====================== -->
     <div id="my-joined-page">
-        <h2 class="my-title">我报名的活动</h2>
+        <h2 class="my-title">我报名参加的活动</h2>
         <div class="joined-list" id="joined-list"></div>
     </div>
 
     <!-- ======================
-         管理员后台页面（新加）
+         6. 管理员后台页
          ====================== -->
     <div id="admin-page">
         <h2 class="admin-title">管理员后台 - 活动管理</h2>
@@ -620,7 +641,7 @@
     <div class="login-modal" id="login-modal">
         <div class="login-box">
             <span class="close-modal" onclick="closeLoginModal()">×</span>
-            <h3 class="login-title">登录</h3>
+            <h3 class="login-title">登录/注册</h3>
             <input type="text" class="login-input" placeholder="账号" id="login-account">
             <input type="password" class="login-input" placeholder="密码" id="login-pwd">
             <button class="login-submit" onclick="userLogin()">登录</button>
@@ -687,7 +708,6 @@
         renderMyJoined();
         document.getElementById('my-joined-page').style.display = 'block';
     }
-    // 去管理员后台
     function goToAdmin() {
         if (!userInfo.isLogin || !userInfo.isAdmin) {
             alert('只有管理员可进入！');
@@ -700,7 +720,7 @@
 
     function hideAllPage() {
         const pages = document.querySelectorAll(
-            '#china-map-page,.province-page,.city-page,#detail-page,#my-joined-page,#admin-page'
+            '#china-map-page,.province-map-page,.city-page,#detail-page,#my-joined-page,#admin-page'
         );
         pages.forEach(p => p.style.display = 'none');
     }
@@ -714,7 +734,6 @@
     function closeLoginModal() {
         document.getElementById('login-modal').style.display = 'none';
     }
-    // 登录逻辑（含管理员判定）
     function userLogin() {
         const account = document.getElementById('login-account').value.trim();
         const pwd = document.getElementById('login-pwd').value.trim();
@@ -740,7 +759,6 @@
         refreshNav();
         closeLoginModal();
     }
-    // 退出登录
     function logout() {
         userInfo = { isLogin: false, isAdmin: false, username: '' };
         myJoined = [];
@@ -748,7 +766,6 @@
         goToHome();
         alert('已退出登录');
     }
-    // 刷新导航栏显示
     function refreshNav() {
         const loginBtn = document.getElementById('login-show-btn');
         const logoutBtn = document.getElementById('logout-btn');
@@ -762,50 +779,44 @@
             logoutBtn.style.display = 'none';
             adminNavBtn.style.display = 'none';
         }
-        // 刷新活动卡片的删除按钮
         refreshAdminDeleteBtn();
+        refreshSignBtnStatus();
     }
 
     // ======================================
-    // 地图点击逻辑
+    // 地图点击逻辑（需求：省→市层级）
     // ======================================
-    document.getElementById('china-map').addEventListener('click', e => {
-        const x = e.clientX / window.innerWidth;
-        const y = e.clientY / window.innerHeight;
-        if (x > 0.6 && y < 0.4) {
-            goToProvince('beijing-page');
-        } else if (x > 0.7 && y < 0.2) {
-            goToProvince('heilongjiang-page');
-        }
-    });
-    function goToProvince(id) {
+    // 全国地图→省份地图
+    function goToProvince(province) {
         hideAllPage();
-        document.getElementById(id).style.display = 'block';
+        document.getElementById(`${province}-province-page`).style.display = 'block';
     }
-    function backToChina() {
-        hideAllPage();
-        document.getElementById('china-map-page').style.display = 'block';
-    }
-
-    document.getElementById('beijing-map').onclick = () => goToCity('beijing');
-    document.getElementById('heilongjiang-map').onclick = () => goToCity('harbin');
+    // 省份地图→城市活动页
+    document.getElementById('beijing-province-map').onclick = () => goToCity('beijing');
+    document.getElementById('heilongjiang-province-map').onclick = () => goToCity('harbin');
 
     function goToCity(city) {
         hideAllPage();
         renderCityActivityList(city);
-        document.getElementById(city === 'beijing' ? 'beijing-city-page' : 'harbin-city-page').style.display = 'block';
+        document.getElementById(`${city}-city-page`).style.display = 'block';
     }
-    function backToProvince(id) {
+    // 返回全国地图
+    function backToChina() {
         hideAllPage();
-        document.getElementById(id).style.display = 'block';
+        document.getElementById('china-map-page').style.display = 'block';
+    }
+    // 返回省份地图
+    function backToProvince(province) {
+        hideAllPage();
+        document.getElementById(`${province}-province-page`).style.display = 'block';
     }
 
     // ======================================
-    // 渲染城市活动列表
+    // 渲染城市活动列表（需求：活动信息展示）
     // ======================================
     function renderCityActivityList(city) {
         const list = activityList.filter(item => item.city === city);
-        const domId = city === 'beijing' ? 'beijing-activity-list' : 'harbin-activity-list';
+        const domId = `${city}-activity-list`;
         const el = document.getElementById(domId);
         let html = '';
         list.forEach(item => {
@@ -833,6 +844,19 @@
             btn.style.display = userInfo.isAdmin ? 'block' : 'none';
         });
     }
+    // 刷新报名按钮状态（需求：未登录不可报名）
+    function refreshSignBtnStatus() {
+        const signBtn = document.getElementById('sign-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        if (!userInfo.isLogin) {
+            signBtn.style.display = 'none';
+            cancelBtn.style.display = 'none';
+            return;
+        }
+        const isJoined = myJoined.some(i => i.id === currentActId);
+        signBtn.style.display = isJoined ? 'none' : 'inline-block';
+        cancelBtn.style.display = isJoined ? 'inline-block' : 'none';
+    }
 
     // ======================================
     // 活动详情
@@ -847,9 +871,7 @@
         document.getElementById('detail-plan').innerText = act.plan;
         document.getElementById('detail-joined').innerText = act.joined;
 
-        const isJoined = myJoined.some(i => i.id === id);
-        document.getElementById('sign-btn').style.display = isJoined ? 'none' : 'inline-block';
-        document.getElementById('cancel-btn').style.display = isJoined ? 'inline-block' : 'none';
+        refreshSignBtnStatus();
 
         hideAllPage();
         document.getElementById('detail-page').style.display = 'block';
@@ -858,21 +880,21 @@
         const act = activityList.find(item => item.id === currentActId);
         if (!act) return;
         hideAllPage();
-        document.getElementById(act.city === 'beijing' ? 'beijing-city-page' : 'harbin-city-page').style.display = 'block';
+        document.getElementById(`${act.city}-city-page`).style.display = 'block';
     }
 
     // ======================================
-    // 报名 / 取消报名
+    // 报名 / 取消报名（需求：登录才可报名）
     // ======================================
     function signUp() {
         if (!userInfo.isLogin) {
-            alert('请先登录！');
+            alert('请先登录后再报名！');
             showLogin();
             return;
         }
         const idx = myJoined.findIndex(i => i.id === currentActId);
         if (idx !== -1) {
-            alert('已报名过');
+            alert('你已经报名过该活动啦');
             return;
         }
         const act = activityList.find(item => item.id === currentActId);
@@ -881,10 +903,10 @@
             name: act.name,
             location: act.location
         });
-        // 模拟已报名人数+1
         act.joined++;
-        alert('报名成功！');
+        alert('报名成功！可在「我的活动」查看');
         goToDetail(currentActId);
+        renderCityActivityList(act.city);
     }
     function cancelSign() {
         myJoined = myJoined.filter(i => i.id !== currentActId);
@@ -892,6 +914,7 @@
         if (act.joined > 0) act.joined--;
         alert('已取消报名');
         goToDetail(currentActId);
+        renderCityActivityList(act.city);
     }
 
     // ======================================
@@ -900,7 +923,7 @@
     function renderMyJoined() {
         const el = document.getElementById('joined-list');
         if (myJoined.length === 0) {
-            el.innerHTML = '<div class="empty-tip">暂无报名活动</div>';
+            el.innerHTML = '<div class="empty-tip">你还没有报名任何活动哦～</div>';
             return;
         }
         let html = '';
@@ -922,7 +945,8 @@
         const act = activityList.find(item => item.id === id);
         if (act && act.joined > 0) act.joined--;
         renderMyJoined();
-        alert('已取消');
+        renderCityActivityList(act.city);
+        alert('已取消报名');
     }
 
     // ======================================
@@ -955,7 +979,6 @@
         document.getElementById('add-activity-location').value = '';
         document.getElementById('add-plan-count').value = '';
     }
-    // 管理员删除活动
     function adminDeleteActivity(id) {
         if (!userInfo.isAdmin) return;
         if (!confirm('确定删除该活动？')) return;
@@ -963,13 +986,11 @@
         if (index === -1) return;
         const city = activityList[index].city;
         activityList.splice(index, 1);
-        // 同步删除我的报名
         myJoined = myJoined.filter(i => i.id !== id);
         alert('删除成功');
         renderAdminActivityList();
         renderCityActivityList(city);
     }
-    // 渲染管理员后台活动列表
     function renderAdminActivityList() {
         const el = document.getElementById('admin-activity-list');
         let html = '';
@@ -996,5 +1017,6 @@
     };
 </script>
 </body>
+</html>
 </html>
 </html>
