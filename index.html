@@ -1,1022 +1,192 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>全国社区活动地图系统</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Microsoft Yahei", sans-serif;
-        }
-        body {
-            background-color: #f5f5f5;
-            overflow-x: hidden;
-        }
+<meta charset="UTF-8">
+<title>全国旅游资源地图系统</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Microsoft YaHei,sans-serif}
+body{background:#f7f7f7;padding:20px}
+.container{max-width:1300px;margin:0 auto}
+.title{text-align:center;font-size:26px;margin-bottom:20px}
 
-        /* 顶部导航 */
-        .nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 50px;
-            background: #2196F3;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            z-index: 999;
-        }
-        .nav-left {
-            font-size: 18px;
-            font-weight: bold;
-        }
-        .nav-right {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-        .nav-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 14px;
-            cursor: pointer;
-        }
-        .nav-btn:hover {
-            text-decoration: underline;
-        }
+/* 省份按钮 */
+.province-group{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:15px}
+.province-group button{padding:6px 10px;background:#2d7d4a;color:white;border:none;border-radius:4px;cursor:pointer}
+.province-group button:hover{background:#1f5d33}
 
-        /* 页面容器 */
-        .page-container {
-            width: 100vw;
-            min-height: 100vh;
-            position: relative;
-            padding-top: 50px;
-        }
+/* 城市按钮 */
+.city-group{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:15px}
+.city-group button{padding:6px 10px;background:#5a82ac;color:white;border:none;border-radius:4px}
 
-        /* ======================
-           1. 全国地图首页（需求核心）
-           ====================== */
-        #china-map-page {
-            width: 100%;
-            min-height: 100vh;
-            background: url("https://picsum.photos/id/1036/1920/1080") center/cover no-repeat;
-            position: relative;
-            display: block;
-        }
-        .map-overlay {
-            width: 100%;
-            min-height: 100vh;
-            background-color: rgba(0,0,0,0.3);
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-        .china-map {
-            width: 90%;
-            max-width: 1200px;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 2;
-            cursor: pointer;
-        }
-        /* 省份标注（需求：省份后写活动名） */
-        .province-tag {
-            position: absolute;
-            color: white;
-            font-size: 14px;
-            background: rgba(0,0,0,0.6);
-            padding: 4px 8px;
-            border-radius: 4px;
-            z-index: 3;
-            cursor: pointer;
-        }
-        .province-tag:hover {
-            background: rgba(33, 150, 243, 0.8);
-        }
+/* 地图 */
+.map-container{position:relative;width:1000px;height:680px;margin:0 auto;background:#fff;border:1px solid #ccc}
+.map-bg{width:100%;height:100%;object-fit:contain}
+.province-highlight{position:absolute;border:3px solid #ff3c00;background:rgba(255,220,80,0.3);display:none;pointer-events:none}
 
-        /* ======================
-           2. 省份地图页（需求：省地图+省风貌背景）
-           ====================== */
-        .province-map-page {
-            width: 100%;
-            min-height: 100vh;
-            position: absolute;
-            top: 50px;
-            left: 0;
-            display: none;
-            z-index: 5;
-            background: center/cover no-repeat;
-        }
-        .province-map-overlay {
-            width: 100%;
-            min-height: 100vh;
-            background-color: rgba(0,0,0,0.4);
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-        .province-map {
-            width: 80%;
-            max-width: 1000px;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 3;
-            cursor: pointer;
-        }
-        .back-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 10;
-            padding: 8px 16px;
-            background: rgba(255,255,255,0.9);
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
+/* 信息面板 */
+.info{margin-top:20px;padding:15px;background:white;border-radius:8px}
+.activity-list{margin-top:10px}
+.activity-item{padding:8px;background:#f0f0f0;margin:4px 0;border-radius:4px}
 
-        /* ======================
-           3. 城市活动列表页（需求：城市背景+活动推荐）
-           ====================== */
-        .city-page {
-            width: 100%;
-            min-height: 100vh;
-            position: absolute;
-            top: 50px;
-            left: 0;
-            display: none;
-            z-index: 6;
-            background: center/cover no-repeat;
-        }
-        .city-overlay {
-            width: 100%;
-            min-height: 100vh;
-            background-color: rgba(0,0,0,0.5);
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-        .city-title {
-            position: absolute;
-            top: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 3;
-            color: white;
-            font-size: 32px;
-            font-weight: bold;
-        }
-        .activity-list {
-            position: absolute;
-            top: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 1200px;
-            z-index: 4;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 20px;
-            padding-bottom: 50px;
-        }
-        .activity-card {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            cursor: pointer;
-            transition: transform 0.2s;
-            position: relative;
-        }
-        .activity-card:hover {
-            transform: translateY(-5px);
-        }
-        .activity-name {
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 8px;
-        }
-        .activity-location {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 12px;
-        }
-        .activity-count {
-            display: flex;
-            justify-content: space-between;
-            font-size: 14px;
-            color: #999;
-        }
-        .count-bar {
-            width: 100%;
-            height: 6px;
-            background: #eee;
-            border-radius: 3px;
-            margin-top: 8px;
-            overflow: hidden;
-        }
-        .count-fill {
-            height: 100%;
-            background: #2196F3;
-            border-radius: 3px;
-        }
-        .admin-del-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 24px;
-            height: 24px;
-            background: #f44336;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 12px;
-            display: none;
-        }
-
-        /* ======================
-           4. 活动详情页
-           ====================== */
-        .detail-page {
-            width: 100%;
-            min-height: 100vh;
-            position: absolute;
-            top: 50px;
-            left: 0;
-            display: none;
-            z-index: 7;
-            background: #f5f5f5;
-        }
-        .detail-content {
-            width: 90%;
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .detail-title {
-            font-size: 28px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 20px;
-        }
-        .detail-info {
-            font-size: 16px;
-            color: #666;
-            line-height: 2;
-            margin-bottom: 30px;
-        }
-        .sign-btn {
-            padding: 12px 30px;
-            background: #2196F3;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-right: 10px;
-        }
-        .sign-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-        .cancel-btn {
-            padding: 12px 30px;
-            background: #f44336;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        /* ======================
-           5. 我的活动页
-           ====================== */
-        #my-joined-page {
-            width: 100%;
-            min-height: 100vh;
-            position: absolute;
-            top: 50px;
-            left: 0;
-            display: none;
-            z-index: 8;
-            background: #f5f5f5;
-            padding: 30px 0;
-        }
-        .my-title {
-            text-align: center;
-            font-size: 26px;
-            color: #333;
-            margin-bottom: 30px;
-        }
-        .joined-list {
-            width: 90%;
-            max-width: 900px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .joined-item {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .joined-info h3 {
-            font-size: 18px;
-            color: #333;
-            margin-bottom: 5px;
-        }
-        .joined-info p {
-            font-size: 14px;
-            color: #666;
-        }
-        .joined-cancel {
-            padding: 8px 16px;
-            background: #f44336;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .empty-tip {
-            text-align: center;
-            color: #999;
-            font-size: 16px;
-            padding: 50px 0;
-        }
-
-        /* ======================
-           6. 管理员后台页
-           ====================== */
-        #admin-page {
-            width: 100%;
-            min-height: 100vh;
-            position: absolute;
-            top: 50px;
-            left: 0;
-            display: none;
-            z-index: 10;
-            background: #f5f5f5;
-            padding: 30px 0;
-            overflow-y: auto;
-        }
-        .admin-title {
-            text-align: center;
-            font-size: 26px;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        .admin-tip {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-        }
-        .admin-form {
-            width: 90%;
-            max-width: 600px;
-            margin: 0 auto 40px;
-            background: white;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .admin-form h3 {
-            margin-bottom: 15px;
-            color: #333;
-        }
-        .form-item {
-            margin-bottom: 15px;
-        }
-        .form-item label {
-            display: block;
-            margin-bottom: 5px;
-            color: #666;
-        }
-        .form-item input,
-        .form-item select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .add-activity-btn {
-            padding: 10px 25px;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .admin-activity-list {
-            width: 90%;
-            max-width: 900px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .admin-activity-item {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .admin-item-info h4 {
-            font-size: 18px;
-            margin-bottom: 5px;
-        }
-        .admin-item-info p {
-            color: #666;
-            font-size: 14px;
-        }
-        .admin-item-del {
-            padding: 8px 16px;
-            background: #f44336;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        /* ======================
-           登录弹窗
-           ====================== */
-        .login-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 20;
-            display: none;
-            justify-content: center;
-            align-items: center;
-        }
-        .login-box {
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 400px;
-        }
-        .login-title {
-            font-size: 20px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .login-input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        .login-submit {
-            width: 100%;
-            padding: 10px;
-            background: #2196F3;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .close-modal {
-            float: right;
-            font-size: 20px;
-            cursor: pointer;
-            color: #999;
-        }
-    </style>
+/* 管理员面板 */
+.admin-panel{margin-top:20px;padding:15px;background:#fff;border:1px solid #ddd;border-radius:8px}
+.admin-panel h3{margin-bottom:10px;color:#c44536}
+.admin-row{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+input,button{padding:6px 10px;border:1px solid #ccc;border-radius:4px}
+.add-btn{background:#2d7d4a;color:white;border:none}
+.del-btn{background:#c44536;color:white;border:none;padding:4px 6px;font-size:12px;margin-left:8px}
+</style>
 </head>
+
 <body>
+<div class="container">
+  <div class="title">全国旅游资源地图展示系统</div>
 
-<!-- 顶部导航 -->
-<div class="nav">
-    <div class="nav-left">社区活动地图</div>
-    <div class="nav-right">
-        <button class="nav-btn" onclick="goToHome()">首页地图</button>
-        <button class="nav-btn" onclick="goToMyJoined()">我的活动</button>
-        <button class="nav-btn" onclick="goToAdmin()" id="admin-nav-btn" style="display:none;">管理后台</button>
-        <button class="nav-btn" onclick="showLogin()" id="login-show-btn">登录/注册</button>
-        <button class="nav-btn" onclick="logout()" id="logout-btn" style="display:none;">退出登录</button>
+  <!-- 省份 -->
+  <div class="province-group" id="provinceBtns"></div>
+  <!-- 城市 -->
+  <div class="city-group" id="cityBtns"></div>
+
+  <!-- 地图 -->
+  <div class="map-container">
+    <img class="map-bg" src="https://pic.108pic.com/20190914/465912193940.jpg">
+    <div class="province-highlight" id="highlight"></div>
+  </div>
+
+  <!-- 信息与活动 -->
+  <div class="info">
+    <h3 id="infoTitle">请选择省份</h3>
+    <p id="infoText"></p>
+    <div class="activity-list" id="activityList"></div>
+  </div>
+
+  <!-- 管理员后台 -->
+  <div class="admin-panel">
+    <h3>🔧 管理员后台 - 活动管理</h3>
+    <div class="admin-row">
+      <input id="actName" placeholder="活动名称" value="非遗体验活动">
+      <input id="actPlace" placeholder="举办城市" value="北京">
+      <button class="add-btn" onclick="addActivity()">新增活动</button>
     </div>
-</div>
-
-<div class="page-container">
-    <!-- ======================
-         1. 全国地图首页（需求核心）
-         ====================== -->
-    <div id="china-map-page">
-        <div class="map-overlay"></div>
-        <img src="https://p3-flow-image-sign.byteimg.com/tos-cn-i-a9r32edvhr/3111191918994331138.png~tplv-a9r32edvhr-image.image" 
-             alt="中国地图" class="china-map" id="china-map">
-        <!-- 省份标注（需求：省份后写活动名） -->
-        <div class="province-tag" style="top: 30%; left: 40%;" onclick="goToProvince('beijing')">北京 · 社区文化节</div>
-        <div class="province-tag" style="top: 35%; left: 55%;" onclick="goToProvince('heilongjiang')">黑龙江 · 冰雪嘉年华</div>
-    </div>
-
-    <!-- ======================
-         2. 省份地图页（需求：省地图+省风貌背景）
-         ====================== -->
-    <div class="province-map-page" id="beijing-province-page" style="background-image: url('https://picsum.photos/id/1016/1920/1080')">
-        <div class="province-map-overlay"></div>
-        <button class="back-btn" onclick="backToChina()">← 返回全国地图</button>
-        <img src="https://p3-flow-image-sign.byteimg.com/tos-cn-i-a9r32edvhr/3111192031111381138.png~tplv-a9r32edvhr-image.image" 
-             alt="北京地图" class="province-map" id="beijing-province-map">
-    </div>
-
-    <div class="province-map-page" id="heilongjiang-province-page" style="background-image: url('https://picsum.photos/id/1039/1920/1080')">
-        <div class="province-map-overlay"></div>
-        <button class="back-btn" onclick="backToChina()">← 返回全国地图</button>
-        <img src="https://p3-flow-image-sign.byteimg.com/tos-cn-i-a9r32edvhr/3111192143228381138.png~tplv-a9r32edvhr-image.image" 
-             alt="黑龙江地图" class="province-map" id="heilongjiang-province-map">
-    </div>
-
-    <!-- ======================
-         3. 城市活动列表页（需求：城市背景+活动推荐）
-         ====================== -->
-    <div class="city-page" id="beijing-city-page" style="background-image: url('https://picsum.photos/id/1018/1920/1080')">
-        <div class="city-overlay"></div>
-        <button class="back-btn" onclick="backToProvince('beijing')">← 返回北京地图</button>
-        <h1 class="city-title">北京市社区活动</h1>
-        <div class="activity-list" id="beijing-activity-list"></div>
-    </div>
-
-    <div class="city-page" id="harbin-city-page" style="background-image: url('https://picsum.photos/id/1040/1920/1080')">
-        <div class="city-overlay"></div>
-        <button class="back-btn" onclick="backToProvince('heilongjiang')">← 返回黑龙江地图</button>
-        <h1 class="city-title">哈尔滨市社区活动</h1>
-        <div class="activity-list" id="harbin-activity-list"></div>
-    </div>
-
-    <!-- ======================
-         4. 活动详情页
-         ====================== -->
-    <div class="detail-page" id="detail-page">
-        <button class="back-btn" onclick="backToCity()">← 返回活动列表</button>
-        <div class="detail-content">
-            <h1 class="detail-title" id="detail-title"></h1>
-            <div class="detail-info">
-                <p>活动地点：<span id="detail-location"></span></p>
-                <p>计划报名人数：<span id="detail-plan"></span>人</p>
-                <p>已报名人数：<span id="detail-joined"></span>人</p>
-                <p>活动时间：2025年X月X日 9:00-17:00</p>
-            </div>
-            <button class="sign-btn" id="sign-btn" onclick="signUp()">立即报名</button>
-            <button class="cancel-btn" onclick="cancelSign()" style="display:none" id="cancel-btn">取消报名</button>
-        </div>
-    </div>
-
-    <!-- ======================
-         5. 我的活动页
-         ====================== -->
-    <div id="my-joined-page">
-        <h2 class="my-title">我报名参加的活动</h2>
-        <div class="joined-list" id="joined-list"></div>
-    </div>
-
-    <!-- ======================
-         6. 管理员后台页
-         ====================== -->
-    <div id="admin-page">
-        <h2 class="admin-title">管理员后台 - 活动管理</h2>
-        <p class="admin-tip">可新增、删除活动，前台会同步更新</p>
-
-        <div class="admin-form">
-            <h3>新增活动</h3>
-            <div class="form-item">
-                <label>活动名称</label>
-                <input type="text" id="add-activity-name">
-            </div>
-            <div class="form-item">
-                <label>活动地点</label>
-                <input type="text" id="add-activity-location">
-            </div>
-            <div class="form-item">
-                <label>所属城市</label>
-                <select id="add-city-type">
-                    <option value="beijing">北京</option>
-                    <option value="harbin">哈尔滨</option>
-                </select>
-            </div>
-            <div class="form-item">
-                <label>计划人数</label>
-                <input type="number" id="add-plan-count" min="1">
-            </div>
-            <button class="add-activity-btn" onclick="adminAddActivity()">添加活动</button>
-        </div>
-
-        <div class="admin-activity-list" id="admin-activity-list"></div>
-    </div>
-
-    <!-- 登录弹窗 -->
-    <div class="login-modal" id="login-modal">
-        <div class="login-box">
-            <span class="close-modal" onclick="closeLoginModal()">×</span>
-            <h3 class="login-title">登录/注册</h3>
-            <input type="text" class="login-input" placeholder="账号" id="login-account">
-            <input type="password" class="login-input" placeholder="密码" id="login-pwd">
-            <button class="login-submit" onclick="userLogin()">登录</button>
-            <div style="text-align:center;margin-top:10px;color:#666;font-size:12px;">
-                管理员账号：admin / 密码：123456
-            </div>
-        </div>
-    </div>
+    <p style="font-size:12px;color:#666">提示：活动城市必须和上方选择的城市一致才能显示</p>
+  </div>
 </div>
 
 <script>
-    // ======================================
-    // 全局状态
-    // ======================================
-    let userInfo = {
-        isLogin: false,
-        isAdmin: false,
-        username: ''
-    };
-    // 我参加的活动
-    let myJoined = [];
-    // 所有活动数据（可后台管理）
-    let activityList = [
-        {
-            id: 1,
-            name: "北京朝阳社区文化节",
-            location: "北京市朝阳区建国路88号",
-            city: "beijing",
-            plan: 200,
-            joined: 156
-        },
-        {
-            id: 2,
-            name: "海淀社区公益市集",
-            location: "北京市海淀区中关村大街1号",
-            city: "beijing",
-            plan: 150,
-            joined: 98
-        },
-        {
-            id: 3,
-            name: "哈尔滨冰雪社区嘉年华",
-            location: "哈尔滨市道里区中央大街",
-            city: "harbin",
-            plan: 300,
-            joined: 220
-        }
-    ];
+// 省份坐标
+const provinceData = {
+  "北京":{x:700,y:220,w:25,h:25,citys:["东城区","西城区","朝阳区","海淀区"]},
+  "天津":{x:710,y:240,w:25,h:25,citys:["和平区","河东区"]},
+  "河北":{x:670,y:240,w:80,h:80,citys:["石家庄","唐山","秦皇岛"]},
+  "山西":{x:630,y:240,w:50,h:70,citys:["太原","大同"]},
+  "内蒙古":{x:550,y:150,w:220,h:150,citys:["呼和浩特","包头"]},
+  "辽宁":{x:770,y:200,w:70,h:80,citys:["沈阳","大连"]},
+  "吉林":{x:800,y:160,w:70,h:70,citys:["长春","吉林"]},
+  "黑龙江":{x:830,y:100,w:100,h:100,citys:["哈尔滨","齐齐哈尔"]},
+  "上海":{x:870,y:400,w:25,h:25,citys:["黄浦区","浦东新区"]},
+  "江苏":{x:820,y:380,w:60,h:50,citys:["南京","苏州"]},
+  "浙江":{x:830,y:420,w:50,h:40,citys:["杭州","宁波"]},
+  "安徽":{x:790,y:380,w:50,h:50,citys:["合肥","黄山"]},
+  "福建":{x:840,y:450,w:40,h:50,citys:["福州","厦门"]},
+  "江西":{x:800,y:420,w:40,h:60,citys:["南昌","九江"]},
+  "山东":{x:760,y:320,w:70,h:60,citys:["济南","青岛"]},
+  "河南":{x:720,y:350,w:60,h:60,citys:["郑州","洛阳"]},
+  "湖北":{x:720,y:390,w:60,h:60,citys:["武汉","宜昌"]},
+  "湖南":{x:720,y:430,w:50,h:70,citys:["长沙","张家界"]},
+  "广东":{x:740,y:490,w:90,h:90,citys:["广州","深圳"]},
+  "广西":{x:670,y:480,w:70,h:100,citys:["南宁","桂林"]},
+  "海南":{x:760,y:610,w:25,h:40,citys:["海口","三亚"]},
+  "重庆":{x:650,y:410,w:40,h:40,citys:["渝中区","万州区"]},
+  "四川":{x:570,y:400,w:90,h:120,citys:["成都","绵阳"]},
+  "贵州":{x:670,y:440,w:40,h:50,citys:["贵阳","遵义"]},
+  "云南":{x:590,y:480,w:70,h:100,citys:["昆明","丽江"]},
+  "西藏":{x:420,y:420,w:120,h:140,citys:["拉萨","林芝"]},
+  "陕西":{x:660,y:340,w:50,h:60,citys:["西安","延安"]},
+  "甘肃":{x:550,y:320,w:100,h:100,citys:["兰州","敦煌"]},
+  "青海":{x:470,y:320,w:90,h:120,citys:["西宁"]},
+  "宁夏":{x:600,y:280,w:30,h:30,citys:["银川"]},
+  "新疆":{x:320,y:200,w:180,h:220,citys:["乌鲁木齐"]},
+  "香港":{x:800,y:540,w:12,h:12,citys:["香港"]},
+  "澳门":{x:790,y:545,w:10,h:10,citys:["澳门"]},
+  "台湾":{x:930,y:490,w:30,h:70,citys:["台北"]}
+};
 
-    // ======================================
-    // 导航 & 页面切换
-    // ======================================
-    function goToHome() {
-        hideAllPage();
-        document.getElementById('china-map-page').style.display = 'block';
-    }
-    function goToMyJoined() {
-        if (!userInfo.isLogin) {
-            alert('请先登录！');
-            showLogin();
-            return;
-        }
-        hideAllPage();
-        renderMyJoined();
-        document.getElementById('my-joined-page').style.display = 'block';
-    }
-    function goToAdmin() {
-        if (!userInfo.isLogin || !userInfo.isAdmin) {
-            alert('只有管理员可进入！');
-            return;
-        }
-        hideAllPage();
-        renderAdminActivityList();
-        document.getElementById('admin-page').style.display = 'block';
-    }
+// 生成省份按钮
+const pBtns = document.getElementById('provinceBtns');
+for(let n in provinceData){
+  pBtns.innerHTML+=`<button onclick="showProvince('${n}')">${n}</button>`;
+}
 
-    function hideAllPage() {
-        const pages = document.querySelectorAll(
-            '#china-map-page,.province-map-page,.city-page,#detail-page,#my-joined-page,#admin-page'
-        );
-        pages.forEach(p => p.style.display = 'none');
-    }
+let currentProv = '';
+let currentCity = '';
+const hl = document.getElementById('highlight');
 
-    // ======================================
-    // 登录 / 退出
-    // ======================================
-    function showLogin() {
-        document.getElementById('login-modal').style.display = 'flex';
-    }
-    function closeLoginModal() {
-        document.getElementById('login-modal').style.display = 'none';
-    }
-    function userLogin() {
-        const account = document.getElementById('login-account').value.trim();
-        const pwd = document.getElementById('login-pwd').value.trim();
-        if (!account || !pwd) {
-            alert('请输入账号和密码');
-            return;
-        }
-        // 管理员账号
-        if (account === 'admin' && pwd === '123456') {
-            userInfo.isLogin = true;
-            userInfo.isAdmin = true;
-            userInfo.username = '管理员';
-            alert('管理员登录成功！');
-            refreshNav();
-            closeLoginModal();
-            return;
-        }
-        // 普通用户
-        userInfo.isLogin = true;
-        userInfo.isAdmin = false;
-        userInfo.username = account;
-        alert('登录成功！');
-        refreshNav();
-        closeLoginModal();
-    }
-    function logout() {
-        userInfo = { isLogin: false, isAdmin: false, username: '' };
-        myJoined = [];
-        refreshNav();
-        goToHome();
-        alert('已退出登录');
-    }
-    function refreshNav() {
-        const loginBtn = document.getElementById('login-show-btn');
-        const logoutBtn = document.getElementById('logout-btn');
-        const adminNavBtn = document.getElementById('admin-nav-btn');
-        if (userInfo.isLogin) {
-            loginBtn.style.display = 'none';
-            logoutBtn.style.display = 'inline-block';
-            adminNavBtn.style.display = userInfo.isAdmin ? 'inline-block' : 'none';
-        } else {
-            loginBtn.style.display = 'inline-block';
-            logoutBtn.style.display = 'none';
-            adminNavBtn.style.display = 'none';
-        }
-        refreshAdminDeleteBtn();
-        refreshSignBtnStatus();
-    }
+// 显示省份
+function showProvince(name){
+  currentProv = name;
+  currentCity = '';
+  let d=provinceData[name];
+  hl.style.display='block';
+  hl.style.left=d.x+'px';
+  hl.style.top=d.y+'px';
+  hl.style.width=d.w+'px';
+  hl.style.height=d.h+'px';
 
-    // ======================================
-    // 地图点击逻辑（需求：省→市层级）
-    // ======================================
-    // 全国地图→省份地图
-    function goToProvince(province) {
-        hideAllPage();
-        document.getElementById(`${province}-province-page`).style.display = 'block';
-    }
-    // 省份地图→城市活动页
-    document.getElementById('beijing-province-map').onclick = () => goToCity('beijing');
-    document.getElementById('heilongjiang-province-map').onclick = () => goToCity('harbin');
+  // 城市按钮
+  let cHtml='';
+  d.citys.forEach(c=>{
+    cHtml+=`<button onclick="showCity('${c}')">${c}</button>`;
+  });
+  document.getElementById('cityBtns').innerHTML=cHtml;
+  document.getElementById('infoTitle').innerText=`当前：${name}`;
+  document.getElementById('infoText').innerText='请选择城市查看活动';
+  refreshActivity();
+}
 
-    function goToCity(city) {
-        hideAllPage();
-        renderCityActivityList(city);
-        document.getElementById(`${city}-city-page`).style.display = 'block';
-    }
-    // 返回全国地图
-    function backToChina() {
-        hideAllPage();
-        document.getElementById('china-map-page').style.display = 'block';
-    }
-    // 返回省份地图
-    function backToProvince(province) {
-        hideAllPage();
-        document.getElementById(`${province}-province-page`).style.display = 'block';
-    }
+// 显示城市
+function showCity(city){
+  currentCity=city;
+  document.getElementById('infoTitle').innerText=`当前：${currentProv} - ${city}`;
+  document.getElementById('infoText').innerText=`以下是${city}的旅游/文化活动`;
+  refreshActivity();
+}
 
-    // ======================================
-    // 渲染城市活动列表（需求：活动信息展示）
-    // ======================================
-    function renderCityActivityList(city) {
-        const list = activityList.filter(item => item.city === city);
-        const domId = `${city}-activity-list`;
-        const el = document.getElementById(domId);
-        let html = '';
-        list.forEach(item => {
-            const rate = Math.round((item.joined / item.plan) * 100);
-            html += `
-            <div class="activity-card" onclick="goToDetail(${item.id})">
-                <button class="admin-del-btn" onclick="event.stopPropagation();adminDeleteActivity(${item.id})" 
-                        data-id="${item.id}">×</button>
-                <div class="activity-name">${item.name}</div>
-                <div class="activity-location">${item.location}</div>
-                <div class="activity-count">
-                    <span>计划：${item.plan}人</span>
-                    <span>已报：${item.joined}人</span>
-                </div>
-                <div class="count-bar"><div class="count-fill" style="width:${rate}%"></div></div>
-            </div>
-            `;
-        });
-        el.innerHTML = html;
-        refreshAdminDeleteBtn();
-    }
-    // 管理员才显示删除按钮
-    function refreshAdminDeleteBtn() {
-        document.querySelectorAll('.admin-del-btn').forEach(btn => {
-            btn.style.display = userInfo.isAdmin ? 'block' : 'none';
-        });
-    }
-    // 刷新报名按钮状态（需求：未登录不可报名）
-    function refreshSignBtnStatus() {
-        const signBtn = document.getElementById('sign-btn');
-        const cancelBtn = document.getElementById('cancel-btn');
-        if (!userInfo.isLogin) {
-            signBtn.style.display = 'none';
-            cancelBtn.style.display = 'none';
-            return;
-        }
-        const isJoined = myJoined.some(i => i.id === currentActId);
-        signBtn.style.display = isJoined ? 'none' : 'inline-block';
-        cancelBtn.style.display = isJoined ? 'inline-block' : 'none';
-    }
+// 活动数据（本地存储）
+let activities = JSON.parse(localStorage.getItem('activities')) || [];
 
-    // ======================================
-    // 活动详情
-    // ======================================
-    let currentActId = null;
-    function goToDetail(id) {
-        const act = activityList.find(item => item.id === id);
-        if (!act) return;
-        currentActId = id;
-        document.getElementById('detail-title').innerText = act.name;
-        document.getElementById('detail-location').innerText = act.location;
-        document.getElementById('detail-plan').innerText = act.plan;
-        document.getElementById('detail-joined').innerText = act.joined;
+// 刷新活动列表
+function refreshActivity(){
+  let list = document.getElementById('activityList');
+  let html='';
+  activities.forEach((a,i)=>{
+    if(currentCity && a.place===currentCity){
+      html+=`
+      <div class="activity-item">
+        ${a.name}（${a.place}）
+        <button class="del-btn" onclick="delAct(${i})">删除</button>
+      </div>`;
+    }
+  });
+  list.innerHTML=html || '<p>暂无活动</p>';
+}
 
-        refreshSignBtnStatus();
+// 新增活动
+function addActivity(){
+  let name = document.getElementById('actName').value.trim();
+  let place = document.getElementById('actPlace').value.trim();
+  if(!name || !place){alert('请填写完整');return;}
+  activities.push({name,place});
+  localStorage.setItem('activities',JSON.stringify(activities));
+  refreshActivity();
+}
 
-        hideAllPage();
-        document.getElementById('detail-page').style.display = 'block';
-    }
-    function backToCity() {
-        const act = activityList.find(item => item.id === currentActId);
-        if (!act) return;
-        hideAllPage();
-        document.getElementById(`${act.city}-city-page`).style.display = 'block';
-    }
-
-    // ======================================
-    // 报名 / 取消报名（需求：登录才可报名）
-    // ======================================
-    function signUp() {
-        if (!userInfo.isLogin) {
-            alert('请先登录后再报名！');
-            showLogin();
-            return;
-        }
-        const idx = myJoined.findIndex(i => i.id === currentActId);
-        if (idx !== -1) {
-            alert('你已经报名过该活动啦');
-            return;
-        }
-        const act = activityList.find(item => item.id === currentActId);
-        myJoined.push({
-            id: act.id,
-            name: act.name,
-            location: act.location
-        });
-        act.joined++;
-        alert('报名成功！可在「我的活动」查看');
-        goToDetail(currentActId);
-        renderCityActivityList(act.city);
-    }
-    function cancelSign() {
-        myJoined = myJoined.filter(i => i.id !== currentActId);
-        const act = activityList.find(item => item.id === currentActId);
-        if (act.joined > 0) act.joined--;
-        alert('已取消报名');
-        goToDetail(currentActId);
-        renderCityActivityList(act.city);
-    }
-
-    // ======================================
-    // 渲染我的活动
-    // ======================================
-    function renderMyJoined() {
-        const el = document.getElementById('joined-list');
-        if (myJoined.length === 0) {
-            el.innerHTML = '<div class="empty-tip">你还没有报名任何活动哦～</div>';
-            return;
-        }
-        let html = '';
-        myJoined.forEach(item => {
-            html += `
-            <div class="joined-item">
-                <div class="joined-info">
-                    <h3>${item.name}</h3>
-                    <p>${item.location}</p>
-                </div>
-                <button class="joined-cancel" onclick="cancelFromMyList(${item.id})">取消报名</button>
-            </div>
-            `;
-        });
-        el.innerHTML = html;
-    }
-    function cancelFromMyList(id) {
-        myJoined = myJoined.filter(i => i.id !== id);
-        const act = activityList.find(item => item.id === id);
-        if (act && act.joined > 0) act.joined--;
-        renderMyJoined();
-        renderCityActivityList(act.city);
-        alert('已取消报名');
-    }
-
-    // ======================================
-    // 管理员功能：新增、删除活动
-    // ======================================
-    function adminAddActivity() {
-        if (!userInfo.isAdmin) return;
-        const name = document.getElementById('add-activity-name').value.trim();
-        const location = document.getElementById('add-activity-location').value.trim();
-        const city = document.getElementById('add-city-type').value;
-        const plan = parseInt(document.getElementById('add-plan-count').value);
-        if (!name || !location || !plan || plan < 1) {
-            alert('请填写完整信息');
-            return;
-        }
-        const newId = activityList.length > 0 ? Math.max(...activityList.map(i => i.id)) + 1 : 1;
-        activityList.push({
-            id: newId,
-            name: name,
-            location: location,
-            city: city,
-            plan: plan,
-            joined: 0
-        });
-        alert('添加成功！');
-        renderAdminActivityList();
-        renderCityActivityList(city);
-        // 清空输入框
-        document.getElementById('add-activity-name').value = '';
-        document.getElementById('add-activity-location').value = '';
-        document.getElementById('add-plan-count').value = '';
-    }
-    function adminDeleteActivity(id) {
-        if (!userInfo.isAdmin) return;
-        if (!confirm('确定删除该活动？')) return;
-        const index = activityList.findIndex(i => i.id === id);
-        if (index === -1) return;
-        const city = activityList[index].city;
-        activityList.splice(index, 1);
-        myJoined = myJoined.filter(i => i.id !== id);
-        alert('删除成功');
-        renderAdminActivityList();
-        renderCityActivityList(city);
-    }
-    function renderAdminActivityList() {
-        const el = document.getElementById('admin-activity-list');
-        let html = '';
-        activityList.forEach(item => {
-            html += `
-            <div class="admin-activity-item">
-                <div class="admin-item-info">
-                    <h4>${item.name}</h4>
-                    <p>${item.location} | ${item.city === 'beijing' ? '北京' : '哈尔滨'}</p>
-                    <p>人数：${item.joined}/${item.plan}</p>
-                </div>
-                <button class="admin-item-del" onclick="adminDeleteActivity(${item.id})">删除活动</button>
-            </div>
-            `;
-        });
-        el.innerHTML = html;
-    }
-
-    // 初始化
-    window.onload = function () {
-        renderCityActivityList('beijing');
-        renderCityActivityList('harbin');
-        refreshNav();
-    };
+// 删除活动
+function delAct(index){
+  if(!confirm('确定删除？'))return;
+  activities.splice(index,1);
+  localStorage.setItem('activities',JSON.stringify(activities));
+  refreshActivity();
+}
 </script>
 </body>
-</html>
-</html>
 </html>
