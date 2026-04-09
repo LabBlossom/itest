@@ -2,64 +2,264 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>非遗文化预约系统 - 北京市</title>
+<title>非遗文化旅游预约系统</title>
 <style>
-  /* 全局样式重置与基础设定 */
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  
-  /* 核心国风字体与背景 */
-  body {
-    font-family: "Microsoft YaHei", "SimSun", serif;
-    background: #f7f2e8; /* 仿宣纸底色 */
-    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 69c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM86 42c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z' fill='%23d9d2c8' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E");
+  *{margin:0;padding:0;box-sizing:border-box;font-family:Microsoft YaHei,sans-serif}
+  body{background:#f7f2e8;color:#2d5f45}
+  .page{display:none;width:100%;min-height:100vh;padding:20px}
+  .page.active{display:block}
+
+  /* 顶部导航 */
+  .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+  .avatar{
+    width:42px;height:42px;
+    background:#fff;
+    border:2px solid #2d5f45;
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    font-weight:bold
+  }
+
+  /* 按钮统一美化 */
+  .btn{
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size:14px;
+    transition: all 0.2s;
+  }
+  .btn-back{
+    background: #e9e2d7;
     color: #2d5f45;
-    padding: 20px;
+    border:1px solid #d3cbb8;
+  }
+  .btn-back:hover{
+    background: #dcd3c4;
+  }
+  .btn-primary{
+    background: #2d5f45;
+    color: #fff;
+  }
+  .btn-primary:hover{
+    background: #234c37;
+  }
+  .btn-danger{
+    background: #c44536;
+    color: #fff;
+  }
+  .btn-danger:hover{
+    background: #a1382c;
+  }
+  .btn-prov{
+    padding: 8px 12px;
+    background: #fff;
+    color: #2d5f45;
+    border:1px solid #ccc;
+    border-radius:8px;
+    cursor:pointer;
+  }
+  .btn-prov:hover{
+    background: #f0f0f0;
   }
 
-  /* 主容器 */
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    position: relative;
+  .title{text-align:center;font-size:26px;margin-bottom:10px}
+  .stats{text-align:center;margin-bottom:20px}
+
+  /* 地图盒子 */
+  .map-box{
+    position:relative;width:100%;height:600px;
+    border:1px solid #2d5f45;
+    border-radius:10px;
+    background:#a8d0b8
+  }
+  .map-bg{width:100%;height:100%;object-fit:contain}
+
+  /* 列表 */
+  .prov-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+  .act-item{
+    padding:14px;
+    background:#fff;
+    margin:8px 0;
+    border-radius:10px;
+    display:flex;justify-content:space-between;align-items:center;
+    box-shadow:0 1px 3px rgba(0,0,0,0.05)
+  }
+  .my-item{
+    padding:14px;
+    background:#fff;
+    margin:8px 0;
+    border-radius:10px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.05)
   }
 
-  /* 顶部标题栏 */
-  .header {
-    text-align: center;
-    margin-bottom: 15px;
+  /* 管理员面板 */
+  .admin{
+    background:#fff;
+    padding:20px;
+    border-radius:10px;
+    margin-top:20px;
+    box-shadow:0 1px 4px rgba(0,0,0,0.05)
   }
-
-  .header h1 {
-    font-size: 36px;
-    font-weight: normal;
-    margin-bottom: 10px;
+  input{
+    padding:9px 12px;
+    border:1px solid #ddd;
+    border-radius:8px;
+    margin-right:8px;
+    outline:none;
   }
-
-  .stats {
-    font-size: 16px;
-    letter-spacing: 1px;
+  input:focus{
+    border-color:#2d5f45
   }
+</style>
+</head>
+<body>
 
-  .stats span {
-    margin: 0 15px;
-  }
+<!-- 1 全国地图页面 -->
+<div class="page active" id="page-map">
+  <div class="header">
+    <h2>旅游资源地图</h2>
+    <div class="avatar" onclick="show('user')">我</div>
+  </div>
+  <div class="title">中国旅游资源分布</div>
+  <div class="prov-list" id="prov-list"></div>
+  <div class="map-box">
+    <img class="map-bg" src="https://picsum.photos/1200/600?random=1" alt="全国地图">
+  </div>
+</div>
 
-  /* 地图主体容器 */
-  .map-container {
-    position: relative;
-    width: 100%;
-    height: 600px;
-    border: 1px solid #2d5f45; /* 仿手绘边框 */
-    border-radius: 5px;
-    overflow: hidden;
-    background: #a8d0b8; /* 地图底色 */
-  }
+<!-- 2 省份页面 -->
+<div class="page" id="page-prov">
+  <div class="header">
+    <button class="btn btn-back" onclick="show('map')">← 返回</button>
+    <div class="avatar" onclick="show('user')">我</div>
+  </div>
+  <div class="title" id="prov-title"></div>
+  <div class="stats" id="prov-stats"></div>
+  <div class="map-box">
+    <img class="map-bg" id="prov-map-img" src="" alt="省份地图">
+  </div>
+  <div style="margin-top:20px">
+    <h3 style="margin-bottom:10px">活动列表</h3>
+    <div id="act-list"></div>
+  </div>
+  <div class="admin">
+    <h3 style="margin-bottom:10px">管理员后台</h3>
+    <input id="act-name" placeholder="活动名称">
+    <input id="act-date" placeholder="活动日期">
+    <button class="btn btn-primary" onclick="addAct()">添加活动</button>
+  </div>
+</div>
 
-  /* 地图背景图 */
-  .map-bg {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+<!-- 3 个人中心 -->
+<div class="page" id="page-user">
+  <div class="header">
+    <button class="btn btn-back" onclick="show('map')">← 返回</button>
+    <h3>个人中心</h3>
+  </div>
+  <div class="title">我的预约活动</div>
+  <div id="my-list"></div>
+</div>
+
+<script>
+// 省份数据
+const provinces = [
+"北京","天津","河北","山西","内蒙古","辽宁","吉林","黑龙江",
+"上海","江苏","浙江","安徽","福建","江西","山东","河南","湖北",
+"湖南","广东","广西","海南","重庆","四川","贵州","云南","西藏",
+"陕西","甘肃","青海","宁夏","新疆","香港","澳门","台湾"
+];
+
+// 生成省份按钮
+const list = document.getElementById('prov-list');
+provinces.forEach(p => {
+  list.innerHTML += `<button class="btn-prov" onclick="openProv('${p}')">${p}</button>`;
+});
+
+// 全局变量
+let nowProv = '';
+
+// 切换页面
+function show(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+}
+
+// 打开省份
+function openProv(name) {
+  nowProv = name;
+  show('prov');
+  document.getElementById('prov-title').innerText = name + " 旅游资源";
+  document.getElementById('prov-stats').innerText = "5A景区：若干 | 文化活动：若干";
+  // 省份地图图片（你可以替换成自己的）
+  document.getElementById('prov-map-img').src = `https://picsum.photos/1200/600?random=${name}`;
+  refreshAct();
+}
+
+// 活动数据
+function getActKey() { return 'acts_' + nowProv; }
+function acts() { return JSON.parse(localStorage.getItem(getActKey())) || []; }
+
+// 刷新活动列表
+function refreshAct() {
+  const list = document.getElementById('act-list');
+  let html = '';
+  acts().forEach((a, i) => {
+    html += `
+    <div class="act-item">
+      <div>${a.name} (${a.date})</div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-primary" onclick="join(${i})">预约</button>
+        <button class="btn btn-danger" onclick="delAct(${i})">删除</button>
+      </div>
+    </div>`;
+  });
+  list.innerHTML = html || '<p>暂无活动</p>';
+}
+
+// 添加活动
+function addAct() {
+  const name = document.getElementById('act-name').value;
+  const date = document.getElementById('act-date').value;
+  if (!name || !date) return alert('请填写完整');
+  const arr = acts();
+  arr.push({ name, date, prov: nowProv });
+  localStorage.setItem(getActKey(), JSON.stringify(arr));
+  refreshAct();
+}
+
+// 删除活动
+function delAct(i) {
+  const arr = acts();
+  arr.splice(i, 1);
+  localStorage.setItem(getActKey(), JSON.stringify(arr));
+  refreshAct();
+}
+
+// 预约活动
+function join(i) {
+  const my = JSON.parse(localStorage.getItem('my_acts')) || [];
+  my.push(acts()[i]);
+  localStorage.setItem('my_acts', JSON.stringify(my));
+  alert('预约成功！');
+}
+
+// 我的预约
+function refreshMy() {
+  const my = JSON.parse(localStorage.getItem('my_acts')) || [];
+  const list = document.getElementById('my-list');
+  let html = '';
+  my.forEach(a => {
+    html += `<div class="my-item">${a.prov}：${a.name} ${a.date}</div>`;
+  });
+  list.innerHTML = html || '<p>暂无预约</p>';
+}
+
+document.getElementById('page-user').addEventListener('click', refreshMy);
+</script>
+</body>
+</html>    object-fit: contain;
     opacity: 0.9;
   }
 
